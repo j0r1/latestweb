@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LaTest - web</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="pdfkit.js"></script>
+    <script src="svgtopdf.js"></script>
+    <script src="blobstream.js"></script>
+    <script src="vex.combined.js"></script>
+    <script>vex.defaultOptions.className = 'vex-theme-os'</script>
+    <script type="module" src="main.js"></script>
+    <link rel="stylesheet" href="vex.css" />
+    <link rel="stylesheet" href="vex-theme-os.css" />
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+    <button id="storetemplate">Store template</button>
+    <div>
+        <select id="selecttemplate">
+        </select>
+    </div>
+    <div id="divsvg">
+    </div>
+    <button id="generatepdf">Generate PDF</button>
+    <a id="anchorpdfview" href="" target="_blank" display="none;"></a>
+</body>
+</html>
