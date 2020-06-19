@@ -1,47 +1,10 @@
 let templates = [];
 
-const storageTemplateKey = "latestweb_templates";
-
-function onStoreTemplateClicked()
-{
-    let svgContents = null;
-    vex.dialog.confirm({
-        unsafeMessage: `
-            <div id='divstoretemplate'>
-                Load SVG file <input id='loadsvgfile' type='file' accept='image/svg'>
-            </div>`,
-        callback: function(value)
-        {
-            if (!value)
-                return;
-
-            if (svgContents)
-            {
-                templates.push({"name": "testtemplate", "svg": svgContents, "tex": "TODO"});
-                localStorage[storageTemplateKey] = JSON.stringify(templates);
-                updateTemplates();
-            }
-        }
-    });
-    $("#loadsvgfile").change((evt) => {
-        let f = evt.target.files[0];
-        let r = new FileReader();
-        r.onload = (evt) => {
-            let contents = evt.target.result;
-            console.log(`Loaded ${contents.length} characters`);
-
-            svgContents = contents;
-        };
-        r.readAsText(f);
-    });
-}
+const storageKey = "latestweb_options";
 
 function updateTemplates()
 {
-    templates = [];
     $("#selecttemplate").empty();
-    if (storageTemplateKey in localStorage)
-        templates = JSON.parse(localStorage[storageTemplateKey]);
 
     let idx = 0;
     for (let t of templates)
@@ -49,6 +12,8 @@ function updateTemplates()
         $("<option>").attr("value", "" + idx).text(t["name"]).appendTo("#selecttemplate");
         idx++;
     }
+
+    onTemplateSelectionChanged();
 }
 
 let testOptions = {
@@ -60,7 +25,39 @@ let testOptions = {
     examPeriod: "Herfst",
     schoolYear: "2020-2021",
     footerText: "Wat tekst beneden",
-    generatedHeaderFileName: null, // Automatically generated
+    headerFileName: "",
+    texFileName: "",
+    zipFileName: "",
+}
+
+function setTestOptions()
+{
+    $("#optnameteacherfontsize").val("" + testOptions.fontSizeNameTeacher);
+    $("#optnameteacher").val(testOptions.nameTeacher);
+    $("#optnamecourse").val(testOptions.course);
+    $("#optmaxpoints").val("" + testOptions.maximumPoints);
+    $("#opttesttitle").val(testOptions.testTitle);
+    $("#optperiodname").val(testOptions.examPeriod);
+    $("#optschoolyear").val(testOptions.schoolYear);
+    $("#optfooter").val(testOptions.footerText);
+    $("#headerfilename").val(testOptions.headerFileName);
+    $("#texfilename").val(testOptions.texFileName);
+    $("#zipfilename").val(testOptions.zipFileName);
+}
+
+function fetchTestOptions()
+{
+    testOptions.fontSizeNameTeacher = parseInt($("#optnameteacherfontsize").val());
+    testOptions.nameTeacher = $("#optnameteacher").val();
+    testOptions.course = $("#optnamecourse").val();
+    testOptions.maximumPoints = parseInt($("#optmaxpoints").val());
+    testOptions.testTitle = $("#opttesttitle").val();
+    testOptions.examPeriod = $("#optperiodname").val();
+    testOptions.schoolYear = $("#optschoolyear").val();
+    testOptions.footerText = $("#optfooter").val();
+    testOptions.headerFileName = $("#headerfilename").val();
+    testOptions.texFileName = $("#texfilename").val();
+    testOptions.zipFileName = $("#zipfilename").val();
 }
 
 function replace(s, obj)
@@ -78,36 +75,9 @@ function onTemplateSelectionChanged()
     let idx = parseInt($("#selecttemplate").val());
     console.log("Selection is now " + idx);
 
+    fetchTestOptions();
     $("#divsvg").empty();
     $("#divsvg").html(replace(templates[idx]["svg"], testOptions));
-}
-
-function onGeneratePDF()
-{
-    let idx = parseInt($("#selecttemplate").val());
-    let svgText = templates[idx]["svg"];
-
-    let doc = new PDFDocument({ autoFirstPage: false});
-    let scaleFactor = 72/96; // pdf points over css pixels
-    doc.addPage({ size: [ $("#divsvg").width()*scaleFactor, $("#divsvg").height()*scaleFactor]})
-    SVGtoPDF(doc, svgText, 0, 0, {});
-    
-    let stream = doc.pipe(blobStream());
-    stream.on('finish', () => {
-        
-        let blob = stream.toBlob('application/pdf');
-        console.log("Downloaded blob");
-        console.log(blob);
-
-        let url = URL.createObjectURL(blob);
-        window.open(url);
-    });
-    doc.end();
-}
-
-function writeToLocalStorage()
-{
-    localStorage[storageTemplateKey] = JSON.stringify(templates);
 }
 
 function addToTemplates(name, svgFile, texFile)
@@ -121,7 +91,6 @@ function addToTemplates(name, svgFile, texFile)
             $.ajax(texFile).then((texResult) => {
 
                 templates.push({"name": name, "svg": svgResult, "tex": texResult})
-                writeToLocalStorage();
                 updateTemplates();
                 resolve();
 
@@ -136,14 +105,12 @@ function addToTemplates(name, svgFile, texFile)
     });
 }
 
-function getSelectedTemplates(optionValues, headerFileName)
+function getSelectedTemplates()
 {
     let idx = parseInt($("#selecttemplate").val());
-    optionValues = JSON.parse(JSON.stringify(optionValues)); // create copy
-    optionValues.generatedHeaderFileName = headerFileName;
     
-    let svg = replace(templates[idx]["svg"], optionValues);
-    let tex = replace(templates[idx]["tex"], optionValues);
+    let svg = replace(templates[idx]["svg"], testOptions);
+    let tex = replace(templates[idx]["tex"], testOptions);
 
     return [ svg, tex ];
 }
@@ -165,53 +132,73 @@ function generatePDF(svgText)
         });
         doc.end();
     });
-    
 }
 
 function onDownloadZip()
 {
-    let headerFileName = "testfilename.pdf";
-    let texFileName = "testtexfile.tex";
-    let outputFileName = "testzip.zip";
-
-    let [svgText, texText ] = getSelectedTemplates(testOptions, headerFileName);
+    fetchTestOptions();
+    let [svgText, texText ] = getSelectedTemplates();
     generatePDF(svgText).then((blob) => {
         let zip = new JSZip();
-        zip.file(texFileName, texText);
-        zip.file(headerFileName, blob);
+        zip.file(testOptions.texFileName, texText);
+        zip.file(testOptions.headerFileName, blob);
         zip.generateAsync({type:"blob"}).then((content) => {
-            saveAs(content, outputFileName);
+            saveAs(content, testOptions.zipFileName);
         });
     });
 }
 
 function main()
 {
-    $("#storetemplate").click(onStoreTemplateClicked);
     $("#selecttemplate").change(onTemplateSelectionChanged);
-    $("#generatepdf").click(onGeneratePDF);
     $("#downloadzip").click(onDownloadZip);
-    updateTemplates();
 
-    if (templates.length == 0)
+    if (storageKey in localStorage)
     {
-        let dlg = vex.dialog.open({
-            unsafeMessage: `Loading...`,
-            callback: (value) => {
-                console.log("Closed...");
-            }
-        })
-
-        let errFunction = (err) => {
-            console.log("Error: ", err);
-        }
-
-        addToTemplates("Examen", "exam-header-template.svg", "exam-template.tex").then(() => {
-            addToTemplates("Toets", "test-header-template.svg", "test-template.tex").then(() => {
-                dlg.close();
-            }).catch(errFunction);
-        }).catch(errFunction);
+        testOptions = JSON.parse(localStorage[storageKey]);
+        setTestOptions();
     }
+
+    let syncFunction = () => {
+        console.log("Syncing...");
+        fetchTestOptions();
+        onTemplateSelectionChanged(); // redraw
+        localStorage[storageKey] = JSON.stringify(testOptions);
+    }
+
+    for (let e of [
+            "optnameteacher",
+            "optnameteacherfontsize",
+            "optnamecourse",
+            "optmaxpoints",
+            "opttesttitle",
+            "optperiodname",
+            "optschoolyear",
+            "optfooter",
+            "texfilename",
+            "headerfilename",
+            "zipfilename"
+             ])
+    {
+        $("#" + e).change(syncFunction).on("input", syncFunction);
+    }
+
+    let dlg = vex.dialog.open({
+        unsafeMessage: `Loading...`,
+        callback: (value) => {
+            console.log("Closed...");
+        }
+    })
+
+    let errFunction = (err) => {
+        console.log("Error: ", err);
+    }
+
+    addToTemplates("Examen", "exam-header-template.svg", "exam-template.tex").then(() => {
+        addToTemplates("Toets", "test-header-template.svg", "test-template.tex").then(() => {
+            dlg.close();
+        }).catch(errFunction);
+    }).catch(errFunction);
 }
 
 $(document).ready(main)

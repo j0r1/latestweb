@@ -17,15 +17,48 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-    <button id="storetemplate">Store template</button>
+    <!-- <button id="storetemplate">Store template</button> -->
     <div>
         <select id="selecttemplate">
         </select>
     </div>
     <div id="divsvg">
     </div>
-    <button id="generatepdf">Generate PDF</button>
-    <button id="downloadzip">Download ZIP</button>
+    <div>
+        <!--   
+let testOptions = {
+    fontSizeNameTeacher: "15",
+    nameTeacher: "Mieke Gorissen",
+    course: "Fysica",
+    maximumPoints: "20",
+    testTitle: "Moeilijke toets!",
+    examPeriod: "Herfst",
+    schoolYear: "2020-2021",
+    footerText: "Wat tekst beneden",
+    generatedHeaderFileName: null, // Automatically generated
+}
+
+        -->
+        <ul>
+            <li>Teacher name:<input type="text" id="optnameteacher"></li>
+            <li>Teacher name font size: <input type="number" id="optnameteacherfontsize" value="15"></li>
+            <li>Course name: <input type="text" id="optnamecourse"></li>
+            <li>Maximum number of points: <input type="number" id="optmaxpoints"></li>
+            <li>Title of test/exam: <input type="text" id="opttesttitle"></li>
+            <li>Exam/test period name: <input type="text" id="optperiodname"></li>
+            <li>School year: <input type="text" id="optschoolyear"></li>
+            <li>Exam/test footer: <input type="text" id="optfooter"></li>
+        </ul>
+    </div>
+    <div>
+        <!-- <button id="generatepdf">Generate PDF</button> -->
+        <ul>
+            <li>LaTeX file name: <input type="text" id="texfilename"></li>
+            <li>Header file name (PDF): <input type="text" id="headerfilename"></li>
+            <li>ZIP file name: <input type="text" id="zipfilename">
+        </ul>
+        <button id="downloadzip">Download ZIP</button>
+    </div>
 
 </body>
 </html>
