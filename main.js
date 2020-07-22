@@ -19,11 +19,13 @@ function updateTemplates()
 let testOptions = {
     fontSizeNameTeacher: "15",
     nameTeacher: "Mieke Gorissen",
+    weight: "80",
+    date: "no time like the present",
+    class: "First class",
     course: "Fysica",
     maximumPoints: "20",
     testTitle: "Moeilijke toets!",
     examPeriod: "Herfst",
-    schoolYear: "2020-2021",
     footerText: "Wat tekst beneden",
     headerFileName: "",
     texFileName: "",
@@ -36,9 +38,11 @@ function setTestOptions()
     $("#optnameteacher").val(testOptions.nameTeacher);
     $("#optnamecourse").val(testOptions.course);
     $("#optmaxpoints").val("" + testOptions.maximumPoints);
+    $("#optweight").val("" + testOptions.weight);
+    $("#optdate").val(testOptions.date);
+    $("#optclass").val(testOptions.class);
     $("#opttesttitle").val(testOptions.testTitle);
     $("#optperiodname").val(testOptions.examPeriod);
-    $("#optschoolyear").val(testOptions.schoolYear);
     $("#optfooter").val(testOptions.footerText);
     $("#headerfilename").val(testOptions.headerFileName);
     $("#texfilename").val(testOptions.texFileName);
@@ -51,9 +55,11 @@ function fetchTestOptions()
     testOptions.nameTeacher = $("#optnameteacher").val();
     testOptions.course = $("#optnamecourse").val();
     testOptions.maximumPoints = parseInt($("#optmaxpoints").val());
+    testOptions.weight = parseInt($("#optweight").val());
+    testOptions.date = $("#optdate").val();
+    testOptions.class = $("#optclass").val();
     testOptions.testTitle = $("#opttesttitle").val();
     testOptions.examPeriod = $("#optperiodname").val();
-    testOptions.schoolYear = $("#optschoolyear").val();
     testOptions.footerText = $("#optfooter").val();
     testOptions.headerFileName = $("#headerfilename").val();
     testOptions.texFileName = $("#texfilename").val();
@@ -171,9 +177,11 @@ function main()
             "optnameteacherfontsize",
             "optnamecourse",
             "optmaxpoints",
+            "optweight",
+            "optdate",
+            "optclass",
             "opttesttitle",
             "optperiodname",
-            "optschoolyear",
             "optfooter",
             "texfilename",
             "headerfilename",
@@ -194,8 +202,8 @@ function main()
         console.log("Error: ", err);
     }
 
-    addToTemplates("Examen", "exam-header-template.svg", "exam-template.tex").then(() => {
-        addToTemplates("Toets", "test-header-template.svg", "test-template.tex").then(() => {
+    addToTemplates("Examen", "exam-psd-template-2020.svg", "exam-template.tex").then(() => {
+        addToTemplates("Toets", "test-psd-template-2020.svg", "test-template.tex").then(() => {
             dlg.close();
         }).catch(errFunction);
     }).catch(errFunction);
