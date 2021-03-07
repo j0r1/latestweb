@@ -202,8 +202,8 @@ function main()
         console.log("Error: ", err);
     }
 
-    addToTemplates("Examen", "exam-psd-template-2020.svg", "exam-template.tex").then(() => {
-        addToTemplates("Toets", "test-psd-template-2020.svg", "test-template.tex").then(() => {
+    addToTemplates("Examen", "exam-psd-template-2021.svg", "exam-template.tex").then(() => {
+        addToTemplates("Toets", "test-psd-template-2021.svg", "test-template.tex").then(() => {
             dlg.close();
         }).catch(errFunction);
     }).catch(errFunction);
